@@ -1,0 +1,147 @@
+---
+import Base from '../layouts/Base.astro';
+import Catalogue from '../components/Catalogue.astro';
+import { LOCATIONS, tel } from '../data/locations';
+import { MENUS } from '../data/menus';
+import { DISHES } from '../data/dishes';
+
+export function getStaticPaths() {
+  return LOCATIONS.map((l) => ({ params: { location: l.slug }, props: { loc: l } }));
+}
+
+const { loc } = Astro.props;
+const menu = MENUS[loc.menu];
+const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const site = 'https://touisthai.netlify.app';
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'Restaurant',
+  '@id': `${site}/${loc.slug}/#restaurant`,
+  name: `Toui´s Thai Kök ${loc.name}`,
+  description: loc.intro,
+  servesCuisine: 'Thai',
+  priceRange: '$$',
+  url: `${site}/${loc.slug}/`,
+  telephone: tel(loc.phone),
+  image: loc.photos.map((p) => `${site}/photo/${p}.webp`),
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: loc.street, postalCode: loc.postal,
+    addressLocality: loc.city, addressCountry: 'SE',
+  },
+  geo: { '@type': 'GeoCoordinates', latitude: loc.geo.lat, longitude: loc.geo.lng },
+  hasMap: loc.mapUrl,
+  acceptsReservations: 'False',
+  openingHoursSpecification: loc.hours.flatMap((h, i) =>
+    h.open ? [{
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: DAY_NAMES[i],
+      opens: h.open.replace('.', ':'),
+      closes: h.close!.replace('.', ':'),
+    }] : []),
+  hasMenu: {
+    '@type': 'Menu',
+    name: `Meny — Toui´s Thai Kök ${loc.name}`,
+    hasMenuSection: menu.sections.map((s) => ({
+      '@type': 'MenuSection',
+      name: s.sv,
+      hasMenuItem: s.items.map((it) => ({
+        '@type': 'MenuItem',
+        name: `${it.no}. ${DISHES[it.dish].name}`,
+        description: DISHES[it.dish].sv,
+        offers: {
+          '@type': 'Offer',
+          price: it.price ?? menu.prices.kyckling,
+          priceCurrency: 'SEK',
+        },
+      })),
+    })),
+  },
+};
+
+const todayIdx = (new Date().getDay() + 6) % 7;
+---
+
+<Base
+  title={`Toui´s Thai Kök ${loc.name} — thairestaurang i ${loc.area}`}
+  description={`Meny, priser och öppettider för Toui´s Thai Kök i ${loc.name}, ${loc.city}. ${loc.nearby}. Ring ${loc.phone} och beställ för avhämtning.`}
+  path={`/${loc.slug}/`}
+  location={loc}
+  schema={schema}
+  lcp={`/photo/${loc.photos[0]}.webp`}
+>
+  <div class="page">
+    <header class="mast">
+      <p class="mast__kicker">{loc.nearby}</p>
+      <h1 class="mast__title">{loc.name}</h1>
+      <p class="mast__lede">{loc.intro}</p>
+      <div class="actions">
+        <a class="btn btn--fill" href={`tel:${tel(loc.phone)}`}>Ring {loc.phone}</a>
+        <a class="btn" href="#meny">Menyn</a>
+        <a class="btn" href={loc.mapUrl} rel="noopener">Vägbeskrivning</a>
+      </div>
+    </header>
+
+    <div class="strip">
+      {loc.photos.map((p, i) => (
+        <img
+          src={`/photo/${p}.webp`} alt={`Toui´s Thai Kök i ${loc.name}`}
+          width="1400" height="875" loading={i === 0 ? 'eager' : 'lazy'} decoding="async"
+        />
+      ))}
+    </div>
+  </div>
+
+  <section id="meny">
+    <div class="page">
+      <div class="sec__head" style="padding-top: var(--space-2xl)">
+        <h2 class="sec__title">Menyn i {loc.name}</h2>
+        <p class="sec__sub">
+          Välj protein en gång så räknas hela menyn om. Alla rätter finns för avhämtning,
+          och du väljer själv mild, medel eller stark.
+        </p>
+      </div>
+    </div>
+    <Catalogue menu={menu} locationName={loc.name} />
+  </section>
+
+  <div class="page">
+    <div class="info">
+      <div>
+        <h3>Öppettider</h3>
+        <ul class="hours">
+          {loc.hours.map((h, i) => (
+            <li data-today={i === todayIdx ? 'true' : 'false'}>
+              <span>{h.day}</span>
+              <span>{h.open ? `${h.open}–${h.close}` : 'Stängt'}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="contact">
+        <h3>Ring &amp; beställ</h3>
+        <p>
+          <a href={`tel:${tel(loc.phone)}`}>{loc.phone}</a><br />
+          <a href={`tel:${tel(loc.mobile)}`}>{loc.mobile}</a>
+        </p>
+        <h3 style="margin-top: var(--space-lg)">Adress</h3>
+        <address>
+          {loc.street}<br />{loc.postal} {loc.city}
+        </address>
+        <p><a href={loc.mapUrl} rel="noopener">Öppna i Google Maps →</a></p>
+      </div>
+
+      <div>
+        <h3>Parkering</h3>
+        <p>{loc.parking}</p>
+        <div class="note">
+          <p>
+            <strong>Allergisk?</strong> Säg till innan du beställer, så anpassar vi rätten.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</Base>

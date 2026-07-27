@@ -1,0 +1,64 @@
+---
+import { DISHES, ALLERGEN_LABEL } from '../data/dishes';
+import { PROTEINS } from '../data/menus';
+import type { Menu, MenuItem } from '../data/menus';
+
+interface Props { item: MenuItem; menu: Menu; eager?: boolean }
+const { item, menu, eager = false } = Astro.props;
+
+const dish = DISHES[item.dish];
+if (!dish) throw new Error(`Unknown dish: ${item.dish}`);
+
+const allergens = dish.allergens ?? [];
+// A dish is orderable vegetarian only if the recipe allows a veg protein AND it isn't
+// built on shellfish or meat. Derived from their own descriptions, never guessed.
+const veg = dish.vegSelectable && !allergens.includes('skaldjur');
+---
+
+<article
+  class="dish"
+  data-veg={veg ? '1' : '0'}
+  data-notter={allergens.includes('notter') ? '1' : '0'}
+  data-skaldjur={allergens.includes('skaldjur') ? '1' : '0'}
+  data-spicy={dish.spicy ? '1' : '0'}
+>
+  <figure class="dish__fig">
+    {dish.img ? (
+      <img
+        class="dish__img"
+        src={`/dish/${dish.img}.webp`}
+        alt={`${dish.name} — ${dish.sv}`}
+        width="800" height="800"
+        loading={eager ? 'eager' : 'lazy'}
+        decoding="async"
+      />
+    ) : (
+      <div class="dish__fig--bare" aria-hidden="true">
+        <span class="bare__no">{item.no}</span>
+        <span class="bare__name">{dish.name}</span>
+      </div>
+    )}
+    <span class="dish__no">{item.no}</span>
+  </figure>
+
+  <div class="dish__head">
+    <h3 class="dish__name">{dish.name}</h3>
+    <p class="dish__price">
+      {item.price != null
+        ? <span class="p p--fixed">{item.price} kr</span>
+        : PROTEINS.map((p) => (
+            <span class={`p p--${p.id}`}>{menu.prices[p.id]} kr</span>
+          ))}
+    </p>
+  </div>
+
+  <p class="dish__desc">{dish.sv}</p>
+  <p class="dish__en" lang="en">{dish.en}</p>
+
+  <ul class="tags">
+    {dish.spicy && <li class="tag tag--heat">Stark i grunden</li>}
+    {veg && <li class="tag tag--veg">Går vegetariskt</li>}
+    {dish.noRice && <li class="tag">Utan ris</li>}
+    {allergens.map((a) => <li class="tag">{ALLERGEN_LABEL[a]}</li>)}
+  </ul>
+</article>

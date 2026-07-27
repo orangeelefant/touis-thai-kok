@@ -1,0 +1,173 @@
+---
+import Base from '../layouts/Base.astro';
+import { LOCATIONS, tel } from '../data/locations';
+import { DISHES } from '../data/dishes';
+import { MENUS, PROTEINS } from '../data/menus';
+
+// A taste of the catalogue on the index — signature dishes that have a photograph.
+const TASTER = [
+  'phad-thai', 'tom-yam-kung', 'kaeng-kheo-hvan', 'phad-med',
+  'touis-fantasy', 'phad-bai-kaprao', 'satay', 'yam-talay',
+];
+const taster = TASTER.map((s) => DISHES[s]).filter((d) => d?.img);
+const sodra = MENUS.sodra;
+const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@graph': LOCATIONS.map((l) => ({
+    '@type': 'Restaurant',
+    '@id': `https://touisthai.netlify.app/${l.slug}/#restaurant`,
+    name: `Toui´s Thai Kök ${l.name}`,
+    servesCuisine: 'Thai',
+    priceRange: '$$',
+    url: `https://touisthai.netlify.app/${l.slug}/`,
+    telephone: tel(l.phone),
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: l.street, postalCode: l.postal,
+      addressLocality: l.city, addressCountry: 'SE',
+    },
+    geo: { '@type': 'GeoCoordinates', latitude: l.geo.lat, longitude: l.geo.lng },
+    openingHoursSpecification: l.hours.flatMap((h, i) =>
+      h.open ? [{
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: DAY_NAMES[i],
+        opens: h.open.replace('.', ':'),
+        closes: h.close!.replace('.', ':'),
+      }] : []),
+  })),
+};
+---
+
+<Base
+  title="Toui´s Thai Kök Göteborg — thairestaurang i Vasastan, Hinsholmen & Mölndal"
+  description="Familjeägd thairestaurang med tre kök i Göteborg. Traditionella recept, färska råvaror, allt lagat direkt vid beställning. Se menyn och ring och beställ."
+  path="/"
+  schema={schema}
+  lcp="/dish/14.webp"
+>
+  <div class="page">
+    <header class="mast mast--index">
+      <div>
+        <p class="mast__kicker">Vasastan · Hinsholmen · Mölndal</p>
+        <h1 class="mast__title">Tre kök.<br />En <em>wok.</em></h1>
+        <p class="mast__lede">
+          Ett familjeägt företag från Thailand som älskar att laga god mat. Traditionella recept,
+          bara utvalda råvaror, och varje rätt lagad först när du beställer den.
+        </p>
+        <div class="actions">
+          <a class="btn btn--fill" href="#hitta-oss">Hitta närmaste kök</a>
+          <a class="btn" href="/vasastan/#meny">Se menyn</a>
+        </div>
+      </div>
+      <div class="mast__plates" aria-hidden="true">
+        <img src="/dish/14.webp" alt="" width="800" height="800" fetchpriority="high" decoding="async" />
+        <img src="/dish/19.webp" alt="" width="800" height="800" loading="lazy" decoding="async" />
+        <img src="/dish/25.webp" alt="" width="800" height="800" loading="lazy" decoding="async" />
+      </div>
+    </header>
+  </div>
+
+  <div class="page">
+    <hr class="rule" />
+    <section id="hitta-oss" class="places">
+      {LOCATIONS.map((l) => (
+        <a class="place" href={`/${l.slug}/`}>
+          <img
+            class="place__img" src={`/photo/${l.photos[0]}.webp`} alt={`Toui´s Thai Kök i ${l.name}`}
+            width="1400" height="875" loading="lazy" decoding="async"
+          />
+          <h2 class="place__name">{l.name}</h2>
+          <p class="place__where">{l.nearby}</p>
+          <p class="place__meta">{l.street}, {l.postal} {l.city}<br />{l.phone}</p>
+          <span class="place__go">Meny &amp; öppettider →</span>
+        </a>
+      ))}
+    </section>
+  </div>
+
+  <div class="page">
+    <section class="sec" id="maten">
+      <div class="sec__head">
+        <h2 class="sec__title">Maten</h2>
+        <p class="sec__sub">
+          Ett urval ur menyn. Hela listan — med priser som räknas om efter vilket protein du
+          väljer — finns på varje restaurangs egen sida.
+        </p>
+      </div>
+      <div class="grid">
+        {taster.map((d) => (
+          <article class="dish">
+            <figure class="dish__fig">
+              <img
+                class="dish__img" src={`/dish/${d.img}.webp`} alt={`${d.name} — ${d.sv}`}
+                width="800" height="800" loading="lazy" decoding="async"
+              />
+            </figure>
+            <div class="dish__head"><h3 class="dish__name">{d.name}</h3></div>
+            <p class="dish__desc">{d.sv}</p>
+          </article>
+        ))}
+      </div>
+      <div class="actions" style="margin-top: var(--space-xl)">
+        <a class="btn" href="/vasastan/#meny">Hela menyn i Vasastan</a>
+        <a class="btn" href="/molndal/#meny">Hela menyn i Mölndal</a>
+      </div>
+    </section>
+  </div>
+
+  <div class="page">
+    <hr class="rule" />
+    <section class="sec" id="om-oss">
+      <div class="story">
+        <div class="story__body">
+          <h2 class="sec__title" style="margin-bottom: var(--space-lg)">Om oss</h2>
+          <p>
+            Toui´s Thai Kök är ett familjeägt företag från Thailand. Bakom woken står tjugo års
+            erfarenhet från restaurangbranschen och en certifierad kockutbildning från Thailand,
+            med kunskaper i kall- och varmkök, gastronomi, livsmedel och näringslära.
+          </p>
+          <p>
+            Vår affärsidé är enkel: erbjuda en sinnrik smakupplevelse, serverad med värme och
+            personlig service. Vi använder bara utvalda råvaror och väljer lokala producenter
+            och leverantörer i möjligaste mån. Menyn följer årstiderna.
+          </p>
+          <p>
+            Alla rätter går att få för avhämtning. Vill du ha maten mildare eller starkare
+            säger du bara till — vi lagar den när du beställer.
+          </p>
+        </div>
+        <div>
+          <img
+            src="/photo/cooking.webp" alt="Matlagning i Toui´s Thai Kök"
+            width="1400" height="875" loading="lazy" decoding="async"
+          />
+        </div>
+      </div>
+      <div class="strip">
+        <img src="/photo/vegetables.webp" alt="Färska thailändska grönsaker och chili" width="1400" height="875" loading="lazy" decoding="async" />
+        <img src="/photo/curry.webp" alt="Nylagad curry med thaibasilika" width="1400" height="875" loading="lazy" decoding="async" />
+        <img src="/photo/takeaway.webp" alt="Avhämtning från Toui´s Thai Kök" width="1400" height="875" loading="lazy" decoding="async" />
+      </div>
+    </section>
+  </div>
+
+  <div class="page">
+    <hr class="rule" />
+    <section class="sec">
+      <div class="sec__head">
+        <h2 class="sec__title">Vad kostar det?</h2>
+        <p class="sec__sub">
+          Priset följer proteinet du väljer, inte rätten. Priserna nedan gäller Hinsholmen och
+          Mölndal — Vasastan har sin egen prislista.
+        </p>
+      </div>
+      <ul class="extras">
+        {PROTEINS.map((p) => (
+          <li><span>{p.sv}</span><span>{sodra.prices[p.id]} kr</span></li>
+        ))}
+      </ul>
+    </section>
+  </div>
+</Base>
