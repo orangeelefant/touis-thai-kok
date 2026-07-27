@@ -1,0 +1,144 @@
+---
+import '../styles/site.css';
+import { LOCATIONS, tel } from '../data/locations';
+import type { Location } from '../data/locations';
+
+interface Props {
+  title: string;
+  description: string;
+  /** set on a location page — drives the banner phone number and the open-now dot */
+  location?: Location;
+  schema?: unknown;
+  path: string;
+  /** the above-the-fold image worth preloading, if the page has one */
+  lcp?: string;
+}
+
+const { title, description, location, schema, path, lcp } = Astro.props;
+const site = 'https://touisthai.netlify.app';
+const canonical = site + path;
+const call = location ?? LOCATIONS[0];
+---
+
+<!doctype html>
+<html lang="sv">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content="sv_SE" />
+    <meta property="og:image" content={`${site}/photo/${call.photos[0]}.webp`} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preload" href="/font/bricolage-wght.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/font/newsreader-wght.woff2" as="font" type="font/woff2" crossorigin />
+    {lcp && <link rel="preload" href={lcp} as="image" fetchpriority="high" />}
+    {schema && <script type="application/ld+json" set:html={JSON.stringify(schema)} />}
+  </head>
+  <body>
+    <a class="skip" href="#main">Hoppa till innehållet</a>
+
+    <!-- N12 · announcement banner, then a bar that retracts on scroll-down -->
+    <div class="banner">
+      <div class="page banner__in">
+        <span class="banner__dot" data-open-dot data-open="true" aria-hidden="true"></span>
+        <span data-open-text>Allt lagas från grunden när du beställer</span>
+        <a class="banner__call" href={`tel:${tel(call.phone)}`}>
+          Ring {call.name} · {call.phone}
+        </a>
+      </div>
+    </div>
+
+    <nav class="nav" data-nav aria-label="Huvudmeny">
+      <div class="page nav__in">
+        <a class="nav__brand" href="/">Toui´s Thai&nbsp;<span>Kök</span></a>
+        <ul class="nav__links">
+          {LOCATIONS.map((l) => (
+            <li>
+              <a
+                class="nav__link"
+                href={`/${l.slug}/`}
+                aria-current={location?.slug === l.slug ? 'page' : undefined}
+              >{l.name}</a>
+            </li>
+          ))}
+          <li><a class="nav__link" href="/#om-oss">Om oss</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="foot">
+      <div class="page">
+        <p class="foot__mast">Tre kök.<br />En <span>wok.</span></p>
+        <p class="foot__tag">
+          Ett familjeägt företag från Thailand som älskar att laga god mat. Traditionella recept,
+          färska råvaror, allt lagat direkt vid beställning.
+        </p>
+        <div class="foot__grid">
+          {LOCATIONS.map((l) => (
+            <div>
+              <h3>{l.name}</h3>
+              <address>
+                {l.street}<br />{l.postal} {l.city}<br />
+                <a href={`tel:${tel(l.phone)}`}>{l.phone}</a>
+              </address>
+            </div>
+          ))}
+        </div>
+        <div class="foot__end">
+          <span>© {new Date().getFullYear()} Toui´s Thai Kök Göteborg</span>
+          <span>Vasastan · Hinsholmen · Mölndal</span>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // The nav retracts on scroll-down and comes back on scroll-up, so the menu grid gets
+      // the full viewport on a phone without losing one-tap access to the phone number.
+      const nav = document.querySelector<HTMLElement>('[data-nav]');
+      let last = window.scrollY;
+      let ticking = false;
+      const onScroll = () => {
+        const y = window.scrollY;
+        if (nav) nav.dataset.retract = String(y > last && y > 280);
+        last = y;
+        ticking = false;
+      };
+      addEventListener('scroll', () => {
+        if (!ticking) { ticking = true; requestAnimationFrame(onScroll); }
+      }, { passive: true });
+    </script>
+
+    <script is:inline define:vars={{ hours: call.hours, name: call.name }}>
+      // Live open/closed. Progressive enhancement — the markup ships a sane default.
+      (function () {
+        const dot = document.querySelector('[data-open-dot]');
+        const text = document.querySelector('[data-open-text]');
+        if (!dot || !text) return;
+        const now = new Date();
+        const idx = (now.getDay() + 6) % 7; // JS Sunday=0 -> our Monday=0
+        const today = hours[idx];
+        const mins = now.getHours() * 60 + now.getMinutes();
+        const toMin = (s) => { const [h, m] = s.split('.').map(Number); return h * 60 + m; };
+        const open = !!today.open && mins >= toMin(today.open) && mins < toMin(today.close);
+        dot.dataset.open = String(open);
+        text.textContent = open
+          ? `Öppet nu i ${name} till ${today.close}`
+          : today.open
+            ? `Stängt just nu · ${name} öppnar ${today.open}`
+            : `Stängt idag i ${name}`;
+      })();
+    </script>
+  </body>
+</html>

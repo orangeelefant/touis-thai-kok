@@ -1,0 +1,75 @@
+/* Hallmark · genre: editorial · macrostructure: Catalogue · nav: N12 banner+retract · footer: Ft1 mast-headed
+ * theme: custom (tuned) · vibe: "market-stall yellow, cobalt porcelain, chili heat"
+ * paper: oklch(96% 0.012 85) · accent: oklch(55% 0.19 28)
+ * display: Bricolage Grotesque · body: Newsreader
+ * axes: light / display-heavy / warm · studied: no · context: inferred
+ * pre-emit critique: P5 H5 E4 S5 R4 V5
+ *
+ * The palette is read off the restaurant's own photographs: the seamless they shoot every
+ * dish on is the yellow, the plate rims are the cobalt, the sweet chili sauce is the accent.
+ */
+
+:root {
+  /* — colour — */
+  --color-paper: oklch(96% 0.012 85);
+  --color-paper-2: oklch(93.5% 0.017 84);
+  --color-paper-3: oklch(90% 0.022 83);
+  --color-ink: oklch(21% 0.035 265);
+  --color-ink-2: oklch(38% 0.028 265);
+  --color-muted: oklch(52% 0.022 265);
+  --color-rule: oklch(84% 0.018 82);
+  --color-rule-2: oklch(89% 0.014 82);
+
+  --color-accent: oklch(55% 0.19 28);        /* chili — CTA, price, heat */
+  --color-accent-ink: oklch(97% 0.012 85);
+  --color-accent-soft: oklch(93% 0.045 35);
+  --color-porcelain: oklch(45% 0.15 258);    /* plate cobalt — structure, labels */
+  --color-porcelain-soft: oklch(92% 0.035 250);
+  --color-yellow: oklch(88% 0.175 92);       /* the seamless — bands, marks */
+  --color-focus: oklch(52% 0.21 258);
+
+  /* — type — */
+  --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Newsreader", ui-serif, Georgia, serif;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1.0625rem;
+  --text-lg: 1.1875rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2.25rem;
+  --text-4xl: 3rem;
+  --text-display-s: clamp(2.5rem, 6vw, 4.5rem);
+  --text-display: clamp(3rem, 11vw, 8.5rem);
+
+  /* — space (4pt) — */
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4.5rem;
+  --space-4xl: 7rem;
+
+  /* — line — */
+  --rule: 1px solid var(--color-rule);
+  --rule-strong: 2px solid var(--color-ink);
+  --radius-sm: 2px;
+  --radius-md: 4px;
+
+  /* — motion — */
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 380ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.5, 0, 0.75, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* — layout — */
+  --measure: 62ch;
+  --page: 78rem;
+  --gutter: clamp(1rem, 4vw, 3rem);
+}

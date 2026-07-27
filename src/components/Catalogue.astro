@@ -1,0 +1,86 @@
+---
+import DishCard from './DishCard.astro';
+import { PROTEINS } from '../data/menus';
+import type { Menu } from '../data/menus';
+
+interface Props { menu: Menu; locationName: string }
+const { menu, locationName } = Astro.props;
+
+const FILTERS = [
+  { id: 'f-veg', label: 'Vegetariskt' },
+  { id: 'f-nonuts', label: 'Utan nötter' },
+  { id: 'f-noshell', label: 'Utan skaldjur' },
+  { id: 'f-spicy', label: 'Stark mat' },
+];
+
+let first = true;
+---
+
+<div class="shop">
+  {/* The controls. Real inputs sit here so they are siblings of both the picker and the
+      grid — that is what makes the price switch and the filters work with JavaScript off. */}
+  {PROTEINS.map((p) => (
+    <input
+      type="radio" name="protein" id={`pr-${p.id}`}
+      checked={p.id === 'kyckling'}
+      aria-label={`Visa priser för ${p.sv.toLowerCase()}`}
+    />
+  ))}
+  {FILTERS.map((f) => <input type="checkbox" id={f.id} aria-label={f.label} />)}
+
+  <div class="picker">
+    <div class="page">
+      <p class="picker__label">Välj protein — hela menyn prissätts om</p>
+      <div class="picker__row" role="group" aria-label="Protein">
+        {PROTEINS.map((p) => (
+          <label class="chip" data-for={`pr-${p.id}`} for={`pr-${p.id}`}>
+            {p.sv} <b>{menu.prices[p.id]} kr</b>
+          </label>
+        ))}
+      </div>
+      <div class="filters" role="group" aria-label="Filtrera menyn">
+        {FILTERS.map((f) => (
+          <label class={`chip ${f.id === 'f-noshell' ? 'f-noshell' : ''}`} data-for={f.id} for={f.id}>
+            {f.label}
+          </label>
+        ))}
+      </div>
+    </div>
+  </div>
+
+  <div class="page cat">
+    {menu.sections.map((s) => (
+      <section id={s.id}>
+        <div class="cat__band">
+          <h2>{s.sv}</h2>
+          <p>{s.note ?? s.en}</p>
+        </div>
+        <div class="grid">
+          {s.items.map((item) => {
+            const eager = first;
+            first = false;
+            return <DishCard item={item} menu={menu} eager={eager} />;
+          })}
+        </div>
+      </section>
+    ))}
+
+    <section id="extra">
+      <div class="cat__band">
+        <h2>Extra</h2>
+        <p>Lägg till i vilken rätt som helst</p>
+      </div>
+      <ul class="extras">
+        {menu.extras.map((e) => (
+          <li><span>{e.sv}</span><span>{e.price} kr</span></li>
+        ))}
+      </ul>
+    </section>
+
+    <p class="note" style="margin-top: var(--space-2xl)">
+      <strong>Allergier.</strong> Säg till innan du beställer om du är allergisk mot något —
+      vi lagar varje rätt när den beställs, så vi kan anpassa den. Märkningen här bygger på
+      ingredienserna i {locationName}s meny och ersätter inte ett samtal med köket.
+    </p>
+  </div>
+</div>

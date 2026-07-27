@@ -1,0 +1,497 @@
+@import "../../tokens.css";
+
+/* Self-hosted so there is no third-party font request: one less connection on the critical
+   path, and no visitor data leaving the site — which a Swedish restaurant should not have
+   to think about. Two variable files cover every weight the design uses. */
+@font-face {
+  font-family: "Bricolage Grotesque";
+  src: url("/font/bricolage-wght.woff2") format("woff2-variations");
+  font-weight: 200 800;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+2000-206F, U+2122, U+2212;
+}
+@font-face {
+  font-family: "Newsreader";
+  src: url("/font/newsreader-wght.woff2") format("woff2-variations");
+  font-weight: 200 800;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+2000-206F, U+2122, U+2212;
+}
+
+/* ─── base ─────────────────────────────────────────────────────────────── */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  overflow-x: clip;              /* clip, never hidden — hidden kills position:sticky */
+  margin: 0;
+}
+
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: 400;
+  line-height: 1.6;
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-style: normal;
+  font-weight: 800;
+  line-height: 1.06;
+  letter-spacing: -0.022em;
+  overflow-wrap: anywhere;
+  min-width: 0;
+  margin: 0;
+  text-wrap: balance;
+}
+
+p { margin: 0 0 var(--space-md); max-width: var(--measure); text-wrap: pretty; }
+img { max-width: 100%; height: auto; display: block; }
+ul { margin: 0; padding: 0; list-style: none; }
+
+a { color: inherit; text-underline-offset: 0.18em; text-decoration-thickness: 1px; }
+
+:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+  /* never transitioned — the ring must appear instantly */
+}
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+
+.skip {
+  position: absolute; left: var(--space-md); top: -4rem; z-index: 100;
+  background: var(--color-ink); color: var(--color-paper);
+  padding: var(--space-sm) var(--space-md); font-family: var(--font-display); font-weight: 600;
+}
+.skip:focus { top: var(--space-md); }
+
+.page { max-width: var(--page); margin-inline: auto; padding-inline: var(--gutter); }
+.rule { border: 0; border-top: var(--rule); margin: 0; }
+
+/* ─── nav · N12 announcement banner + retracting bar ───────────────────── */
+
+.banner {
+  background: var(--color-ink);
+  color: var(--color-paper);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.banner__in {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-xs) var(--space-md);
+  padding-block: var(--space-sm);
+}
+.banner__dot {
+  width: 0.5rem; height: 0.5rem; border-radius: 50%;
+  background: var(--color-yellow); flex: none;
+}
+.banner__dot[data-open="false"] { background: var(--color-muted); }
+.banner__call {
+  margin-inline-start: auto; display: inline-flex; align-items: center; gap: var(--space-xs);
+  background: var(--color-accent); color: var(--color-accent-ink);
+  padding: var(--space-2xs) var(--space-sm);
+  text-decoration: none; white-space: nowrap;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.banner__call:hover { background: oklch(from var(--color-accent) calc(l - 0.06) c h); }
+
+.nav {
+  position: sticky; top: 0; z-index: 50;
+  background: var(--color-paper);
+  border-bottom: var(--rule);
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+.nav[data-retract="true"] { transform: translateY(-101%); }
+
+.nav__in {
+  display: flex; align-items: center; gap: var(--space-md);
+  padding-block: var(--space-sm);
+}
+.nav__brand {
+  font-family: var(--font-display); font-weight: 800; font-size: var(--text-lg);
+  letter-spacing: -0.03em; text-decoration: none; white-space: nowrap; line-height: 1;
+}
+.nav__brand span { color: var(--color-accent); }
+.nav__links {
+  display: flex; gap: var(--space-xs); margin-inline-start: auto;
+  overflow-x: auto; scrollbar-width: none;
+}
+.nav__links::-webkit-scrollbar { display: none; }
+.nav__link {
+  font-family: var(--font-display); font-size: var(--text-sm); font-weight: 600;
+  padding: var(--space-2xs) var(--space-sm);
+  text-decoration: none; white-space: nowrap;      /* never wraps to two lines */
+  border: 1px solid transparent;
+  transition: border-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+.nav__link:hover { border-color: var(--color-ink); }
+.nav__link[aria-current="page"] { border-color: var(--color-accent); color: var(--color-accent); }
+
+/* ─── masthead ─────────────────────────────────────────────────────────── */
+
+.mast { padding-block: var(--space-3xl) var(--space-2xl); }
+
+/* On a wide screen the masthead gains a second column of their own dish photography —
+   the food should be visible before the fold on a restaurant page. */
+@media (min-width: 64rem) {
+  .mast--index {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr);
+    gap: var(--space-3xl); align-items: center;
+  }
+}
+.mast__plates { display: none; }
+@media (min-width: 64rem) {
+  .mast__plates {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-sm);
+  }
+  .mast__plates img { width: 100%; aspect-ratio: 1; object-fit: cover; }
+  .mast__plates img:nth-child(1) { grid-column: 1 / -1; aspect-ratio: 2 / 1.2; }
+}
+.mast__kicker {
+  font-family: var(--font-display); font-weight: 600;
+  font-size: var(--text-sm); letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--color-porcelain); margin-bottom: var(--space-md);
+}
+.mast__title { font-size: var(--text-display); margin-bottom: var(--space-lg); }
+.mast__title em { font-style: normal; color: var(--color-accent); }
+.mast__lede {
+  font-size: var(--text-xl); line-height: 1.5; color: var(--color-ink-2);
+  max-width: 44ch; margin-bottom: var(--space-xl);
+}
+
+.actions { display: flex; flex-wrap: wrap; gap: var(--space-sm); }
+
+.btn {
+  display: inline-flex; align-items: center; gap: var(--space-xs);
+  font-family: var(--font-display); font-weight: 600; font-size: var(--text-base);
+  padding: var(--space-sm) var(--space-lg);
+  text-decoration: none; white-space: nowrap; cursor: pointer;
+  border: 2px solid var(--color-ink); background: transparent; color: var(--color-ink);
+  transition: transform var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out),
+              color var(--dur-fast) var(--ease-out);
+}
+.btn:hover { transform: translateY(-2px); }
+.btn:active { transform: translateY(0); }
+.btn--fill { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-accent-ink); }
+.btn--fill:hover { background: oklch(from var(--color-accent) calc(l - 0.06) c h); border-color: oklch(from var(--color-accent) calc(l - 0.06) c h); }
+.btn[disabled] { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+/* ─── location index ───────────────────────────────────────────────────── */
+
+.places {
+  display: grid; gap: var(--space-lg);
+  grid-template-columns: repeat(auto-fit, minmax(min(19rem, 100%), 1fr));
+  padding-block: var(--space-2xl);
+}
+.place {
+  display: flex; flex-direction: column;
+  border-top: var(--rule-strong);
+  padding-top: var(--space-md);
+  text-decoration: none;
+  min-width: 0;
+}
+.place__img {
+  aspect-ratio: 4 / 3; object-fit: cover; width: 100%;
+  margin-bottom: var(--space-md); background: var(--color-paper-3);
+  transition: filter var(--dur-base) var(--ease-out);
+}
+.place:hover .place__img { filter: saturate(1.12); }
+.place__name { font-size: var(--text-3xl); margin-bottom: var(--space-2xs); }
+.place__where { color: var(--color-muted); font-size: var(--text-sm); margin-bottom: var(--space-sm); }
+.place__meta { font-size: var(--text-sm); color: var(--color-ink-2); margin-top: auto; }
+.place__go {
+  font-family: var(--font-display); font-weight: 600; color: var(--color-accent);
+  margin-top: var(--space-sm); display: inline-block;
+}
+.place:hover .place__go { text-decoration: underline; }
+
+/* ─── section heads ────────────────────────────────────────────────────── */
+
+.sec { padding-block: var(--space-3xl); }
+.sec__head { margin-bottom: var(--space-xl); }
+.sec__title { font-size: var(--text-4xl); margin-bottom: var(--space-sm); }
+.sec__sub { color: var(--color-ink-2); max-width: 52ch; margin: 0; }
+
+/* ─── protein picker · the price control ───────────────────────────────── */
+
+.picker {
+  position: sticky; top: 3.25rem; z-index: 40;
+  background: var(--color-paper-2);
+  border-block: var(--rule-strong);
+  padding-block: var(--space-md);
+  margin-bottom: var(--space-xl);
+}
+.picker__label {
+  font-family: var(--font-display); font-weight: 800; font-size: var(--text-sm);
+  letter-spacing: 0.12em; text-transform: uppercase; line-height: 1.05;
+  margin-bottom: var(--space-sm); color: var(--color-porcelain);
+}
+.picker__row { display: flex; flex-wrap: wrap; gap: var(--space-xs); }
+
+/* The real inputs live as direct children of .shop so they are siblings of BOTH the picker
+   and the grid — that adjacency is what lets prices and filters work without JavaScript.
+   The chips are <label for>, styled from the input's state via :has(). */
+.shop > input { position: absolute; opacity: 0; pointer-events: none; }
+
+.chip {
+  display: inline-flex; align-items: baseline; gap: var(--space-xs);
+  font-family: var(--font-display); font-weight: 600; font-size: var(--text-sm);
+  padding: var(--space-xs) var(--space-sm);
+  border: 1.5px solid var(--color-rule);
+  background: var(--color-paper); white-space: nowrap; cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out),
+              color var(--dur-fast) var(--ease-out);
+}
+.chip b { font-weight: 400; color: var(--color-muted); font-family: var(--font-body); }
+.chip:hover { border-color: var(--color-ink-2); }
+.shop > input:focus-visible + .picker .chip[data-for],
+.chip:has(:focus-visible) { outline: 3px solid var(--color-focus); outline-offset: 2px; }
+
+.filters { display: flex; flex-wrap: wrap; gap: var(--space-xs); margin-top: var(--space-sm); }
+
+/* On a phone eleven wrapped chips would eat half the viewport and the sticky picker would
+   bury the food. Scroll them on one line instead, bleeding to the screen edge. */
+@media (max-width: 48rem) {
+  .picker__label { font-size: var(--text-xs); }
+  .picker__row, .filters {
+    flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none;
+    margin-inline: calc(-1 * var(--gutter));
+    padding-inline: var(--gutter);
+    scroll-padding-inline: var(--gutter);
+  }
+  .picker__row::-webkit-scrollbar, .filters::-webkit-scrollbar { display: none; }
+  .chip { flex: none; }
+}
+
+/* checked states — one rule per control, because CSS can't match id-to-[for] generically */
+.shop:has(#pr-kyckling:checked)   [data-for="pr-kyckling"],
+.shop:has(#pr-tofu:checked)       [data-for="pr-tofu"],
+.shop:has(#pr-vegetarisk:checked) [data-for="pr-vegetarisk"],
+.shop:has(#pr-biff:checked)       [data-for="pr-biff"],
+.shop:has(#pr-rakor:checked)      [data-for="pr-rakor"],
+.shop:has(#pr-blackfisk:checked)  [data-for="pr-blackfisk"],
+.shop:has(#pr-mix:checked)        [data-for="pr-mix"] {
+  border-color: var(--color-ink); background: var(--color-ink); color: var(--color-paper);
+}
+.shop:has(#pr-kyckling:checked)   [data-for="pr-kyckling"] b,
+.shop:has(#pr-tofu:checked)       [data-for="pr-tofu"] b,
+.shop:has(#pr-vegetarisk:checked) [data-for="pr-vegetarisk"] b,
+.shop:has(#pr-biff:checked)       [data-for="pr-biff"] b,
+.shop:has(#pr-rakor:checked)      [data-for="pr-rakor"] b,
+.shop:has(#pr-blackfisk:checked)  [data-for="pr-blackfisk"] b,
+.shop:has(#pr-mix:checked)        [data-for="pr-mix"] b { color: var(--color-yellow); }
+
+.shop:has(#f-veg:checked)     [data-for="f-veg"],
+.shop:has(#f-nonuts:checked)  [data-for="f-nonuts"],
+.shop:has(#f-noshell:checked) [data-for="f-noshell"],
+.shop:has(#f-spicy:checked)   [data-for="f-spicy"] {
+  background: var(--color-accent); border-color: var(--color-accent); color: var(--color-accent-ink);
+}
+
+/* ─── the catalogue ────────────────────────────────────────────────────── */
+
+.cat { padding-bottom: var(--space-2xl); }
+.cat__band {
+  display: flex; align-items: baseline; gap: var(--space-md);
+  border-bottom: var(--rule-strong); padding-bottom: var(--space-xs);
+  margin-block: var(--space-2xl) var(--space-lg);
+}
+.cat__band h2 { font-size: var(--text-2xl); }
+.cat__band p { margin: 0; font-size: var(--text-sm); color: var(--color-muted); }
+
+.grid {
+  display: grid; gap: var(--space-lg) var(--space-md);
+  grid-template-columns: repeat(auto-fill, minmax(min(15rem, 100%), 1fr));
+}
+
+.dish { display: flex; flex-direction: column; min-width: 0; }
+.dish__fig { margin: 0 0 var(--space-sm); position: relative; }
+.dish__img {
+  width: 100%; aspect-ratio: 1; object-fit: cover;
+  background: var(--color-yellow);
+  transition: transform var(--dur-base) var(--ease-out);
+}
+.dish:hover .dish__img { transform: scale(1.02); }
+.dish__no {
+  position: absolute; inset-block-start: 0; inset-inline-start: 0;
+  font-family: var(--font-display); font-weight: 800; font-size: var(--text-sm);
+  background: var(--color-ink); color: var(--color-paper);
+  padding: var(--space-2xs) var(--space-xs); line-height: 1.1;
+}
+/* Dishes they never photographed get a menu chit on the same seamless the rest were shot
+   on — the number carries the tile so a long dish name can never blow out the square. */
+.dish__fig--bare {
+  aspect-ratio: 1; background: var(--color-yellow);
+  display: grid; place-content: center; gap: var(--space-xs);
+  padding: var(--space-md); text-align: center; container-type: inline-size;
+}
+.dish__fig--bare .bare__no {
+  font-family: var(--font-display); font-weight: 800;
+  font-size: clamp(2.5rem, 34cqw, 5rem); line-height: 0.9;
+  color: oklch(40% 0.10 82);
+}
+.dish__fig--bare .bare__name {
+  font-family: var(--font-body); font-style: normal; font-size: var(--text-sm);
+  line-height: 1.3; color: oklch(34% 0.08 82);
+  overflow-wrap: anywhere; hyphens: auto; max-width: 100%;
+}
+
+.dish__head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: var(--space-sm); margin-bottom: var(--space-2xs);
+}
+.dish__name { font-size: var(--text-lg); font-weight: 600; letter-spacing: -0.015em; }
+.dish__price {
+  font-family: var(--font-display); font-weight: 800; font-size: var(--text-lg);
+  font-variant-numeric: tabular-nums; color: var(--color-accent); white-space: nowrap;
+}
+.dish__desc { font-size: var(--text-sm); color: var(--color-ink-2); margin: 0 0 var(--space-xs); line-height: 1.5; }
+.dish__en { font-size: var(--text-xs); color: var(--color-muted); margin: 0 0 var(--space-xs); line-height: 1.5; }
+
+.tags { display: flex; flex-wrap: wrap; gap: var(--space-2xs); margin-top: auto; padding-top: var(--space-xs); }
+.tag {
+  font-family: var(--font-display); font-weight: 600; font-size: var(--text-xs);
+  padding: 1px var(--space-xs); border: 1px solid var(--color-rule); color: var(--color-muted);
+  line-height: 1.5;
+}
+.tag--heat { border-color: var(--color-accent); color: var(--color-accent); }
+.tag--veg { border-color: var(--color-porcelain); color: var(--color-porcelain); }
+
+/* price switching — every price is rendered, CSS reveals the picked one.
+   Works with JavaScript off, and there is no flash on load. */
+.p { display: none; }
+.dish__price .p--fixed { display: inline; }
+#pr-kyckling:checked  ~ * .p--kyckling,
+#pr-tofu:checked      ~ * .p--tofu,
+#pr-vegetarisk:checked ~ * .p--vegetarisk,
+#pr-biff:checked      ~ * .p--biff,
+#pr-rakor:checked     ~ * .p--rakor,
+#pr-blackfisk:checked ~ * .p--blackfisk,
+#pr-mix:checked       ~ * .p--mix { display: inline; }
+
+/* filters — hide what doesn't match. :has() keeps this JavaScript-free. */
+.shop:has(#f-veg:checked) .dish:not([data-veg="1"]),
+.shop:has(#f-nonuts:checked) .dish[data-notter="1"],
+.shop:has(#f-noshell:checked) .dish[data-skaldjur="1"],
+.shop:has(#f-spicy:checked) .dish:not([data-spicy="1"]) { display: none; }
+/* picking shellfish as your protein makes the shellfish-free filter contradictory */
+.shop:has(#pr-rakor:checked) .f-noshell,
+.shop:has(#pr-blackfisk:checked) .f-noshell,
+.shop:has(#pr-mix:checked) .f-noshell { display: none; }
+
+.cat__empty { display: none; color: var(--color-muted); padding-block: var(--space-xl); }
+
+/* ─── hours + contact ──────────────────────────────────────────────────── */
+
+.info {
+  display: grid; gap: var(--space-2xl);
+  grid-template-columns: repeat(auto-fit, minmax(min(17rem, 100%), 1fr));
+  padding-block: var(--space-2xl);
+  border-top: var(--rule-strong);
+}
+.info h3 {
+  font-size: var(--text-sm); letter-spacing: 0.12em; text-transform: uppercase;
+  line-height: 1.05; color: var(--color-porcelain); margin-bottom: var(--space-md);
+}
+.hours { font-variant-numeric: tabular-nums; }
+.hours li {
+  display: flex; justify-content: space-between; gap: var(--space-md);
+  padding-block: var(--space-2xs); border-bottom: 1px solid var(--color-rule-2);
+}
+.hours li[data-today="true"] { font-weight: 600; color: var(--color-accent); }
+.hours span:first-child { color: var(--color-ink-2); }
+.hours li[data-today="true"] span:first-child { color: inherit; }
+
+.contact a { font-family: var(--font-display); font-weight: 600; text-decoration: none; }
+.contact a:hover { text-decoration: underline; }
+.contact address { font-style: normal; margin-bottom: var(--space-md); }
+
+.note {
+  background: var(--color-accent-soft); border-inline-start: 4px solid var(--color-accent);
+  padding: var(--space-md); font-size: var(--text-sm);
+}
+.note p:last-child { margin-bottom: 0; }
+
+/* ─── extras table ─────────────────────────────────────────────────────── */
+
+.extras { columns: 2 14rem; column-gap: var(--space-2xl); font-size: var(--text-sm); }
+.extras li {
+  display: flex; justify-content: space-between; gap: var(--space-md);
+  padding-block: var(--space-2xs); border-bottom: 1px solid var(--color-rule-2);
+  break-inside: avoid; font-variant-numeric: tabular-nums;
+}
+
+/* ─── photo strip ──────────────────────────────────────────────────────── */
+
+.strip {
+  display: grid; gap: var(--space-sm);
+  grid-template-columns: repeat(auto-fit, minmax(min(14rem, 100%), 1fr));
+  padding-block: var(--space-xl);
+}
+.strip img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
+
+/* ─── story ────────────────────────────────────────────────────────────── */
+
+.story { display: grid; gap: var(--space-2xl); grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 56rem) { .story { grid-template-columns: minmax(0, 5fr) minmax(0, 4fr); align-items: start; } }
+.story__body p { font-size: var(--text-lg); }
+.story__body p:first-child::first-letter {
+  font-family: var(--font-display); font-weight: 800; font-size: 3.4em;
+  float: left; line-height: 0.82; padding-inline-end: 0.08em; padding-block-start: 0.06em;
+  color: var(--color-accent);
+}
+
+/* ─── footer · Ft1 mast-headed ─────────────────────────────────────────── */
+
+.foot { background: var(--color-ink); color: var(--color-paper); margin-top: var(--space-3xl); }
+.foot__mast {
+  font-family: var(--font-display); font-weight: 800;
+  font-size: clamp(2.25rem, 9vw, 5.5rem); line-height: 0.95; letter-spacing: -0.035em;
+  padding-block: var(--space-2xl) var(--space-md);
+  overflow-wrap: anywhere;
+}
+.foot__mast span { color: var(--color-yellow); }
+.foot__tag { color: oklch(80% 0.02 85); max-width: 46ch; margin-bottom: var(--space-2xl); }
+.foot__grid {
+  display: grid; gap: var(--space-xl);
+  grid-template-columns: repeat(auto-fit, minmax(min(15rem, 100%), 1fr));
+  padding-bottom: var(--space-2xl);
+}
+.foot__grid h3 {
+  font-size: var(--text-sm); letter-spacing: 0.12em; text-transform: uppercase;
+  line-height: 1.05; color: var(--color-yellow); margin-bottom: var(--space-sm);
+}
+.foot__grid address { font-style: normal; color: oklch(84% 0.015 85); font-size: var(--text-sm); }
+.foot__grid a { font-family: var(--font-display); font-weight: 600; text-decoration: none; white-space: nowrap; }
+.foot__grid a:hover { text-decoration: underline; }
+.foot__end {
+  border-top: 1px solid oklch(32% 0.03 265);
+  padding-block: var(--space-md) var(--space-xl);
+  font-size: var(--text-xs); color: oklch(70% 0.02 85);
+  display: flex; flex-wrap: wrap; gap: var(--space-xs) var(--space-md);
+}
+
+/* ─── motion ───────────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 1ms !important; animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+  .nav[data-retract="true"] { transform: none; }
+}
