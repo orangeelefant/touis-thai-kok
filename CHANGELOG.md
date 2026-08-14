@@ -5,6 +5,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+
+- [2026-08-14] chore(deps): `npm audit fix` körd — icke-brytande fixar, inget `--force`, inga majorbumpar. 0 sårbarhet(er) kvarstår och kräver majoruppgraderingar. Dependabot-schema tillagt (npm, veckovis, minor/patch grupperade). Bygget verifierat lokalt.
 ### Added
 - Initial proof-of-concept site for Toui´s Thai Kök Göteborg, replacing three separate
   WordPress installs with one Astro site covering all three restaurants.
