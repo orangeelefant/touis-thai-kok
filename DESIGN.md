@@ -192,3 +192,27 @@ Lighthouse accessibility 100.
 - Every dish image has an alt describing the dish and its ingredients, not just its name.
 - Tap targets clear 44px; no clickable text wraps to two lines at any supported width.
 - Verified at 320 / 375 / 414 / 768px with no horizontal scroll.
+
+## Brand mark
+
+Logotypen är en rund bricka: vit cirkel på guld, med ett gyllene thailändskt gaveltak
+(chofa-pediment), en mörkgrön slevkurva och tre textrader — TOUI´S THAI KÖK, Thailändsk mat,
+Göteborg. Den fungerar i sidhuvudet men inte som favikon. Vid 16 px blir hela brickan en
+guldfärgad prick med ett suddigt gult streck i mitten; namnet går inte att läsa.
+
+Favikonen är därför en egen reduktion: ett versalt **T** i Bricolage Grotesque ExtraBold,
+`paper` på `accent`, fullt utfall utan cirkel, 60 % av rutans höjd. Bricolage är systemets
+displayfont och `accent` dess primära accentfärg, så ikonen är byggd av samma delar som
+resten av sajten.
+
+Gaveltaket testades som märke, både i guld på `ink` och i `accent` på `paper`. Det föll bort:
+förenklat till en form som överlever 16 px blir pedimentet en vanlig vinkelhake och läser som
+en tältsymbol, inte som thailändsk arkitektur. Ornamentet behöver detaljerna för att betyda
+något, och de detaljerna finns inte vid 16 px.
+
+Glyfen ligger som `<path>` i `public/favicon.svg`, inte som `<text>`. Webbläsare renderar
+SVG-favikoner i en begränsad kontext där webbfonter inte laddas, så en `font-family`-referens
+hade fallit tillbaka på systemets sans.
+
+Filerna genereras ur den SVG:n: `favicon.ico` (16/32/48), `favicon.png` (32) och
+`apple-touch-icon.png` (180×180).
