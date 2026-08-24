@@ -5,6 +5,22 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+- **Favikonen var den runda brickan nedskalad och gick inte att läsa.** Logotypen är en vit
+  cirkel på guld med ett gyllene gaveltak, en slevkurva och tre textrader. Vid 16 px blir det
+  en guldprick med ett suddigt streck i mitten.
+
+  Favikonen är nu ett versalt T i Bricolage Grotesque ExtraBold, `paper` på `accent`, fullt
+  utfall utan cirkel. Bricolage är sajtens displayfont och `accent` dess primära accentfärg.
+  Glyfen ligger som `<path>`, inte som `<text>`: SVG-favikoner renderas utan att webbfonter
+  laddas, så en `font-family`-referens hade fallit tillbaka på systemets sans.
+
+  Gaveltaket provades först som märke i två färgställningar och valdes bort. Förenklat till
+  något som överlever 16 px blir pedimentet en vanlig vinkelhake som läser som ett tält.
+
+  `favicon.svg` är ny och länkas först, `favicon.ico` (16/32/48) är ny, och `favicon.png` och
+  `apple-touch-icon.png` är omgenererade ur samma källa. Den gamla `apple-touch-icon.png` gick
+  från 16 kB till 631 byte.
+
 - **Astros standardikon låg som både `favicon.svg` och `favicon.ico`.** SVG:en är borttagen och `.ico` genererad ur restaurangens egen `favicon.png`. Kvar att lösa: logotypen är en detaljerad rund bild med tre textrader och blir oläslig vid 16 px. Den behöver ett förenklat märke, vilket är ett designbeslut.
 
 
