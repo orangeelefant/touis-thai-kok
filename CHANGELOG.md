@@ -5,6 +5,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+- **Astros standardikon låg som både `favicon.svg` och `favicon.ico`.** SVG:en är borttagen och `.ico` genererad ur restaurangens egen `favicon.png`. Kvar att lösa: logotypen är en detaljerad rund bild med tre textrader och blir oläslig vid 16 px. Den behöver ett förenklat märke, vilket är ett designbeslut.
+
 
 - [2026-08-14] chore(deps): `npm audit fix` körd — icke-brytande fixar, inget `--force`, inga majorbumpar. 0 sårbarhet(er) kvarstår och kräver majoruppgraderingar. Dependabot-schema tillagt (npm, veckovis, minor/patch grupperade). Bygget verifierat lokalt.
 ### Added
