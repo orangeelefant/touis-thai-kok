@@ -5,6 +5,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+- **Dagens rad i öppettiderna och öppet nu-pricken räknas i svensk tid, i webbläsaren.** Raden
+  markerades tidigare efter veckodagen när sajten byggdes, och klockan följde besökarens tidszon.
+
 - **Favikonen var den runda brickan nedskalad och gick inte att läsa.** Logotypen är en vit
   cirkel på guld med ett gyllene gaveltak, en slevkurva och tre textrader. Vid 16 px blir det
   en guldprick med ett suddigt streck i mitten.

@@ -128,10 +128,15 @@ const call = location ?? LOCATIONS[0];
         const dot = document.querySelector('[data-open-dot]');
         const text = document.querySelector('[data-open-text]');
         if (!dot || !text) return;
-        const now = new Date();
-        const idx = (now.getDay() + 6) % 7; // JS Sunday=0 -> our Monday=0
+        // Restaurant time, not the visitor's: the kitchens are in Sweden.
+        const t = Object.fromEntries(new Intl.DateTimeFormat('en-GB', {
+          timeZone: 'Europe/Stockholm', weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+        }).formatToParts(new Date()).map((x) => [x.type, x.value]));
+        const idx = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].indexOf(t.weekday); // our Monday=0
         const today = hours[idx];
-        const mins = now.getHours() * 60 + now.getMinutes();
+        const mins = Number(t.hour) * 60 + Number(t.minute);
+        // Highlight today's row in the hours list (static HTML can't know the day).
+        document.querySelectorAll('.hours li').forEach((li, i) => { li.dataset.today = String(i === idx); });
         const toMin = (s) => { const [h, m] = s.split('.').map(Number); return h * 60 + m; };
         const open = !!today.open && mins >= toMin(today.open) && mins < toMin(today.close);
         dot.dataset.open = String(open);

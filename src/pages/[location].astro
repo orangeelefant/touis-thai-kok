@@ -60,7 +60,6 @@ const schema = {
   },
 };
 
-const todayIdx = (new Date().getDay() + 6) % 7;
 ---
 
 <Base
@@ -111,8 +110,8 @@ const todayIdx = (new Date().getDay() + 6) % 7;
       <div>
         <h3>Öppettider</h3>
         <ul class="hours">
-          {loc.hours.map((h, i) => (
-            <li data-today={i === todayIdx ? 'true' : 'false'}>
+          {loc.hours.map((h) => (
+            <li>
               <span>{h.day}</span>
               <span>{h.open ? `${h.open}–${h.close}` : 'Stängt'}</span>
             </li>
